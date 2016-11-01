@@ -16,7 +16,7 @@ old_lat = 0.
 old_lon = 0.
 old_user = 0
 old_sec = 0
-with gzip.open("lat_lon_sorted.gz", "rb") as f:
+with gzip.open("tweets_lat_lon_sorted.gz", "rb") as f:
     for line in f:
         line = line.decode("utf-8").strip()
         elements = line.split("\t")
