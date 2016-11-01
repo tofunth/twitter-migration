@@ -17,5 +17,7 @@ paste <(zcat tweets_lat_lon_sorted.gz) <(zcat tweets_lat_lon_speed.gz) | gzip > 
 # remove all tweets with changing location speed more than 1000
 zcat tweets_lat_lon_speed_mixed.gz | awk -F "\t" '{if ($9 < 1000) print}' | gzip > tweets_lat_lon_no_more_1000.gz
 # change the name to "mixed"
+mv tweets_lat_lon_no_more_1000.gz tweets_lat_lon_mixed.gz
 # remove tweets from removal candidates
-
+./exc_remove_candidates.py | gzip > tweets_lat_lon_removed.gz
+mv tweets_lat_lon_removed.gz tweets_lat_lon_final.gz
