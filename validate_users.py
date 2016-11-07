@@ -34,28 +34,32 @@ twitter_app_auth = {
 }
 
 bon = botornot.BotOrNot(**twitter_app_auth)
-remove_users_results = []
-keep_users_results = []
+# remove_users_results = []
+# keep_users_results = []
 
-for u in remove_users:
-    try:
-        res = bon.check_account(u)
-        remove_users_results.append(res)
-    except Exception:
-        pass
+# for u in remove_users:
+#     try:
+#         res = bon.check_account(u)
+#         remove_users_results.append(res)
+#     except Exception:
+#         pass
+
+remove_users_results = list(bon.check_accounts_in(remove_users))
     
-for u in keep_users:
-    try:
-        res = bon.check_account(u)
-        keep_users_results.append(res)
-    except Exception:
-        pass
+# for u in keep_users:
+#     try:
+#         res = bon.check_account(u)
+#         keep_users_results.append(res)
+#     except Exception:
+#         pass
+
+keep_users_results = list(bon.check_accounts_in(keep_users))
     
 # plot the results
 import matplotlib.pyplot as plt
 
-remove_users_scores = [u['score'] for u in remove_users_results]
-keep_users_scores = [u['score'] for u in keep_users_results]
+remove_users_scores = [u[1]['score'] for u in remove_users_results if 'score' in u[1].keys()]
+keep_users_scores = [u[1]['score'] for u in keep_users_results if 'score' in u[1].keys()]
 
 plt.figure(1)
 plt.subplot(211)
