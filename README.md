@@ -1,1 +1,1 @@
-# twitter-migration: A course project at Aalto University: Analyze migration pattern using geotagged tweets.
+# twitter-migration: A course project at Aalto University: Understanding human migration using Twitter data.
