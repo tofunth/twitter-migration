@@ -2,8 +2,9 @@
 import gzip
 from sktensor import sptensor
 import pickle
+import numpy as np
 
-filename = "date_country_userid.gz"
+filename = "small.gz"
 month_dict = {'Jan':'01', 'Feb':'02', 'Mar':'03', 'Apr':'04', 'May':'05', 'Jun':'06',
               'Jul':'07', 'Aug':'08', 'Sep':'09', 'Oct':'10', 'Nov':'11', 'Dec':'12'}
 
@@ -35,7 +36,8 @@ country_dic = {country_lst[i]:i
 # get the flows
 prev_userid = ''
 prev_country = ''
-col_dic = {}
+data = np.zeros((len(country_dic), len(country_dic), len(yearmonth_dic)),
+                    dtype=int)
 
 with gzip.open(filename, 'rb') as f:
     for line in f:
@@ -49,15 +51,16 @@ with gzip.open(filename, 'rb') as f:
         # get userid of the tweet
         userid = elems[2]
         if userid==prev_userid and country!=prev_country:
-            col_val = (prev_country, country, yearmonth)
-            if col_val in col_dic.keys():
-                col_dic[col_val] += 1
-            else:
-                col_dic[col_val] = 1
+            data[
+                country_dic[prev_country],
+                country_dic[country],
+                yearmonth_dic[yearmonth]
+                ] += 1
         # save the userid and country for the next itereation
         prev_userid = userid
         prev_country = country
-        
+
+'''
 # build the sparse tensor
 src_row = []
 dest_row = []
@@ -74,5 +77,10 @@ tensor_dim = (len(country_dic), len(country_dic), len(yearmonth_dic))
 T = sptensor(subs=subs, vals=vals, shape=tensor_dim, dtype=int)
 
 # serialize the tensor
-with open('tensor.dat', 'wb') as f:
+with open('tensor.dat', 'w+') as f:
     pickle.dump(T, f)
+'''
+
+# serialize the data
+with open('tensor.dat', 'w+') as f:
+    pickle.dump(data, f)
