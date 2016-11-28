@@ -1,3 +1,6 @@
 [submodule "cp/bptf"]
 	path = cp/bptf
 	url = https://github.com/aschein/bptf.git
+[submodule "cp/globalmigration"]
+	path = cp/globalmigration
+	url = https://github.com/null2/globalmigration
