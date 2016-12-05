@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Dec  5 10:36:28 2016
+
+@author: tofunth
+"""
+
+import gzip
+import os
+
+quarter_dict = {'Jan':'01', 'Feb':'01', 'Mar':'01', 'Apr':'02', 'May':'02', 'Jun':'02',
+              'Jul':'03', 'Aug':'03', 'Sep':'03', 'Oct':'04', 'Nov':'04', 'Dec':'04'}
+
+prefix = ''
+filename = 'ALL_TWEETS_lat_long_username_date_country.gz'
+filepath = os.path.join(prefix, filename)
+fname, fext = os.path.splitext(filepath)
+assert os.path.isfile(filepath) and fext == '.gz'
+with gzip.open(filepath, 'rb') as f:
+    for line in f:
+        line = line.decode('utf-8').strip()
+        elem = line.split('\t')
+        try:
+            tweet_time_elem = elem[3].split()
+            tweet_month = tweet_time_elem[1]
+            tweet_year = tweet_time_elem[-1]
+            quarter = tweet_year+quarter_dict[tweet_month]
+            print quarter
+        except Exception:
+            print '0'
