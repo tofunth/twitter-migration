@@ -1,67 +1,41 @@
-#!/usr/bin/env python
+# %% import packages
 import gzip
+import json
 from sktensor import sptensor
 import pickle
 import numpy as np
-
-filename = "small.gz"
-month_dict = {'Jan':'01', 'Feb':'02', 'Mar':'03', 'Apr':'04', 'May':'05', 'Jun':'06',
-              'Jul':'07', 'Aug':'08', 'Sep':'09', 'Oct':'10', 'Nov':'11', 'Dec':'12'}
-
-country_lst = []
-yearmonth_lst = []
-
-with gzip.open(filename, 'rb') as f:
-    for line in f:
-        line = line.decode('utf-8').strip()
-        elems = line.split("\t")
-        date = elems[0].split(" ")
-        yearmonth = date[-1]+month_dict[date[1]]
-        if yearmonth not in yearmonth_lst:
-            yearmonth_lst.append(yearmonth)
-
-        country = elems[1]
-        if country not in country_lst:
-            country_lst.append(country)
-
-yearmonth_lst.sort()
-country_lst.sort()
-
-yearmonth_dic = {yearmonth_lst[i]:i
-                      for i in range(len(yearmonth_lst))}
-                          
-country_dic = {country_lst[i]:i
-                    for i in range(len(country_lst))}
-
+import os
+# %% construct the tensor
 # get the flows
-prev_userid = ''
-prev_country = ''
-data = np.zeros((len(country_dic), len(country_dic), len(yearmonth_dic)),
-                    dtype=int)
-
-with gzip.open(filename, 'rb') as f:
-    for line in f:
-        line = line.decode('utf-8').strip()
-        elems = line.split("\t")
-        # get yearmonth of the tweet
-        date = elems[0].split(" ")
-        yearmonth = date[-1]+month_dict[date[1]]
-        # get country of the tweet
-        country = elems[1]
-        # get userid of the tweet
-        userid = elems[2]
-        if userid==prev_userid and country!=prev_country:
-            data[
-                country_dic[prev_country],
-                country_dic[country],
-                yearmonth_dic[yearmonth]
-                ] += 1
-        # save the userid and country for the next itereation
-        prev_userid = userid
-        prev_country = country
+def get_travel_flow(filename, country_dic, time_dic):
+    last_username = ''
+    last_country = ''
+    data = np.zeros((len(country_dic), len(country_dic), len(time_dic)),
+                        dtype=int)
+    
+    with gzip.open(filename, 'rb') as f:
+        for line in f:
+            line = line.decode('utf-8').strip()
+            elem = line.split("\t")
+            # get userid of the tweet
+            username = elem[0]
+            # get time of the tweet
+            quarter = elem[1]
+            # get country of the tweet
+            country = elem[2]
+            if username==last_username and country!=last_country:
+                data[
+                    country_dic[country], # source country
+                    country_dic[last_country], # destination country
+                    time_dic[quarter]
+                    ] += 1
+            # save the userid and country for the next itereation
+            last_username = username
+            last_country = country
+    return data
 
 '''
-# build the sparse tensor
+# %% build the sparse tensor
 src_row = []
 dest_row = []
 time_row = []
@@ -80,7 +54,33 @@ T = sptensor(subs=subs, vals=vals, shape=tensor_dim, dtype=int)
 with open('tensor.dat', 'w+') as f:
     pickle.dump(T, f)
 '''
+# %% serialize the data
+def save_tensor(data, filename):
+    with open(filename, 'w+') as f:
+        pickle.dump(data, f)
+# %% load dictionary
+def load_dic(filename):
+    with open(filename, 'r') as f:
+        return json.loads(f.read())
+# %% main script
+prefix = 'data'
+inputname = 'ALL_TWEETS_username_quarter_residence.gz'
+inputpath = os.path.join(prefix, inputname)
+_, fext = os.path.splitext(inputpath)
+assert os.path.isfile(inputpath) and fext == '.gz'
 
-# serialize the data
-with open('tensor.dat', 'w+') as f:
-    pickle.dump(data, f)
+outputname = 'tensor.dat'
+outputpath = os.path.join(prefix, outputname)
+_, fext = os.path.splitext(outputpath)
+assert fext == '.dat'
+
+dicname = 'dic.json'
+dicpath = os.path.join(prefix, dicname)
+_, fext = os.path.splitext(dicpath)
+assert fext == '.json'
+
+dic = load_dic(dicpath)
+country_dic = dic['country_dic']
+time_dic = dic['time_dic']
+data = get_travel_flow(inputpath, country_dic, time_dic)
+save_tensor(data, outputpath)
