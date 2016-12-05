@@ -40,5 +40,5 @@ with gzip.open(filepath, 'rb') as f:
             last_username = username
             last_quarter = quarter
         except Exception as e:
-            print '0'
+            pass
         
