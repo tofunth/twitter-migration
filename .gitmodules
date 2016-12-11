@@ -4,3 +4,6 @@
 [submodule "cp/globalmigration"]
 	path = cp/globalmigration
 	url = https://github.com/null2/globalmigration
+[submodule "cp/gini"]
+	path = cp/gini
+	url = https://github.com/oliviaguest/gini
