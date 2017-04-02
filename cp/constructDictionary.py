@@ -18,8 +18,8 @@ def get_dic(filename):
                 line = line.decode('utf-8').strip()
                 elem = line.split("\t")
                 
-                quarter = elem[1]
-                country = elem[2]
+                quarter = elem[2]
+                country = elem[1]
                 if quarter not in time_lst:
                     time_lst.append(quarter)
     
@@ -45,7 +45,7 @@ def save_file(filename, country_dic, time_dic):
         json.dump(result, f)
 # %% main script
 prefix = 'data'
-inputname = 'ALL_TWEETS_username_quarter_residence.gz'
+inputname = 'ALL_TWEETS_username_residence_time.gz'
 inputpath = os.path.join(prefix, inputname)
 _, fext = os.path.splitext(inputpath)
 assert os.path.isfile(inputpath) and fext == '.gz'
